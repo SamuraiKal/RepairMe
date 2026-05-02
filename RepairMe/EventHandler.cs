@@ -18,6 +18,7 @@ namespace RepairMe
         private CancellationTokenSource? eventLoopTokenSource;
 
         public bool IsActive => IsLoggedIn
+                                && RepairMe.PlayerState.IsLoaded
                                 && !IsLoading
                                 && !IsInPvPArea
                                 && !IsOccupied;
@@ -137,7 +138,7 @@ namespace RepairMe
 
                     EquipmentScannerLastEquipmentData = equipmentScanner.BuildEquipmentData;
 #if DEBUG
-                    Log.Information($"RepairMe update @ {DateTime.Now:HH:mm:ss}");
+                    RepairMe.Log.Information($"RepairMe update @ {DateTime.Now:HH:mm:ss}");
 #endif
 
                     // limits the equipment refreshes to 1 per CooldownMilliseconds but still updating immediately when
