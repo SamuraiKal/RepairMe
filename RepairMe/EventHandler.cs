@@ -3,17 +3,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Conditions;
 using FFXIVClientStructs.FFXIV.Client.Game;
-using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace RepairMe
 {
-    public unsafe class EventHandler : IDisposable
+    public class EventHandler : IDisposable
     {
         private Configuration conf => Configuration.GetOrLoad();
         private readonly EquipmentScanner equipmentScanner;
         private readonly ManualResetEvent manualResetEvent;
         private const int CooldownMilliseconds = 500;
-        private AtkUnitBase* addonLoading;
         internal EquipmentData? EquipmentScannerLastEquipmentData;
         private CancellationTokenSource? eventLoopTokenSource;
 
@@ -35,48 +33,18 @@ namespace RepairMe
 
         private bool IsLoggedIn => RepairMe.ClientState.IsLoggedIn;
 
-        private bool IsLoading
-        {
-            get
-            {
-                if (addonLoading == null) SetAddonNowLoading();
-                try
-                {
-                    return addonLoading->IsVisible;
-                }
-                catch (Exception e1)
-                {
-                    RepairMe.Log.Debug(e1, "NowLoading is being problematic");
-                    try
-                    {
-                        SetAddonNowLoading();
-                        return addonLoading->IsVisible;
-                    }
-                    catch (Exception e2)
-                    {
-                        RepairMe.Log.Debug(e2, "NowLoading is nowhere to be found");
-                        return false;
-                    }
-                }
-            }
-        }
+        private bool IsLoading => RepairMe.Conditions[ConditionFlag.BetweenAreas]
+                                  || RepairMe.Conditions[ConditionFlag.BetweenAreas51];
 
         public EventHandler(EquipmentScanner equipmentScanner)
         {
             this.equipmentScanner = equipmentScanner;
             manualResetEvent = new ManualResetEvent(false);
 
-            SetAddonNowLoading();
-
             equipmentScanner.NotificationTarget = Notify;
 
             RepairMe.ClientState.Login += ClientStateOnOnLogin;
             RepairMe.ClientState.Logout += ClientStateOnOnLogout;
-        }
-
-        private void SetAddonNowLoading()
-        {
-            addonLoading = (AtkUnitBase*)RepairMe.GameGui.GetAddonByName("NowLoading", 1).Address;
         }
 
         public void Dispose()
@@ -91,7 +59,6 @@ namespace RepairMe
 
         private void ClientStateOnOnLogin()
         {
-            SetAddonNowLoading();
             Notify();
         }
 
