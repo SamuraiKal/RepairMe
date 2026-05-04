@@ -49,7 +49,7 @@ namespace RepairMe
 
         // reference fields
         private Configuration conf => Configuration.GetOrLoad();
-        private PositionProfile position;
+        private PositionProfile position = null!;
         private PositionProfile? positionUndo = null;
         private readonly EventHandler eventHandler;
 
@@ -66,9 +66,6 @@ namespace RepairMe
 
         private ExcelSheet<Lumina.Excel.Sheets.Item> items =
             RepairMe.GameData.GetExcelSheet<Lumina.Excel.Sheets.Item>()!;
-
-        private ExcelSheet<Lumina.Excel.Sheets.GeneralAction> generalActions =
-            RepairMe.GameData.GetExcelSheet<Lumina.Excel.Sheets.GeneralAction>()!;
 
         private const uint GeneralActionIdRepair = 6;
         private const uint GeneralActionIdMateriaExtraction = 14;
@@ -134,7 +131,7 @@ namespace RepairMe
 
                 longestOrientationLabel = OrientationLabels.Select(label => ImGui.CalcTextSize(label).X).Max() * 1.35f;
 
-                bool altCharacter = conf.AltCharacters.ContainsKey(RepairMe.ClientState.LocalContentId);
+                bool altCharacter = conf.AltCharacters.ContainsKey(RepairMe.PlayerState.ContentId);
 
                 // bar condition
                 DrawConditionBar();
@@ -248,8 +245,6 @@ namespace RepairMe
             // is dragging current window
             if (isDragging && ImGui.IsWindowFocused())
             {
-                var vp = ImGuiHelpers.MainViewport.Size;
-
                 var delta = ImGui.GetMouseDragDelta(ImGuiMouseButton.Left, 0);
                 ImGui.ResetMouseDragDelta();
                 pos.X += delta.X;
@@ -322,7 +317,7 @@ namespace RepairMe
                 MigratePositions(ref position.BarCondition);
                 CheckDrag(ref position.BarCondition);
 
-                bool altCharacter = conf.AltCharacters.ContainsKey(RepairMe.ClientState.LocalContentId);
+                bool altCharacter = conf.AltCharacters.ContainsKey(RepairMe.PlayerState.ContentId);
 
                 if (altCharacter && condition <= conf.ThresholdConditionCriticalAlt
                     || !altCharacter && condition <= conf.ThresholdConditionCritical)
@@ -898,10 +893,10 @@ namespace RepairMe
                     ImGui.Spacing();
                 }
 
-                if (ImGui.Button("Apply to current character##AltCharsrepairMe051") && RepairMe.ClientState.LocalPlayer != null)
+                if (ImGui.Button("Apply to current character##AltCharsrepairMe051") && RepairMe.PlayerState.IsLoaded)
                 {
-                    conf.AltCharacters[RepairMe.ClientState.LocalContentId] = RepairMe.ClientState.LocalPlayer!.Name + " @ " +
-                                                                              RepairMe.ClientState.LocalPlayer!.HomeWorld.Value;
+                    conf.AltCharacters[RepairMe.PlayerState.ContentId] = RepairMe.PlayerState.CharacterName + " @ " +
+                                                                         RepairMe.PlayerState.HomeWorld.Value;
                     conf.Save();
                 }
 

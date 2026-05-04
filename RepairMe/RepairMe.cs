@@ -17,8 +17,8 @@ namespace RepairMe
         [PluginService] internal static ICondition              Conditions      { get; private set; } = null!;
         [PluginService] internal static IKeyState               Keys            { get; private set; } = null!;
         [PluginService] internal static IGameGui                GameGui         { get; private set; } = null!;
+        [PluginService] internal static IPlayerState            PlayerState     { get; private set; } = null!;
         [PluginService] internal static IPluginLog              Log             { get; private set; } = null!;
-        [PluginService] internal static IGameInteropProvider    Hook            { get; private set; } = null!;
         
         private const string CommandName = "/repairme";
         private EquipmentScanner? equipmentScanner;

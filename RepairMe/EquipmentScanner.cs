@@ -4,10 +4,6 @@ using Dalamud.Game;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game;
 
-#if DEBUG
-using Dalamud.Logging;
-#endif
-
 namespace RepairMe
 {
     public struct EquipmentData
@@ -180,7 +176,7 @@ namespace RepairMe
             if (countTicks is 0 or >= 300)
             {
                 if (countTicks >= 300)
-                    PluginLog.Information(
+                    RepairMe.Log.Information(
                         $"Took {minTicks}-{maxTicks} ( ran {countTicks} times ) avg: {sumTicks / (double) countTicks}");
                 minTicks = maxTicks = bm.ElapsedTicks;
                 sumTicks = (ulong) bm.ElapsedTicks;
