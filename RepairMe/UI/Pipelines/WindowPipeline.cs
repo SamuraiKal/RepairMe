@@ -73,6 +73,7 @@ namespace RepairMe
         public WindowItem[] HeaderItems = Array.Empty<WindowItem>();
         public bool DrawOnce;
         public Action<WindowBuilder>? RemoveAction;
+        internal IImGuiApi Api = DalamudImGuiApi.Instance;
 
         /// <summary>
         /// Maintains the previous ref-bool call site while delegating actual drawing to WindowSystem.
@@ -96,7 +97,7 @@ namespace RepairMe
         /// <summary>
         /// Draws tab content with stable hidden ID for tab bar support.
         /// </summary>
-        private void DrawContents()
+        internal void DrawContents()
         {
             foreach (var item in HeaderItems)
                 item.Draw();
@@ -113,7 +114,7 @@ namespace RepairMe
 
             // Multiple tabs with tab bar enabled: use stable hidden ID
             var stableId = Title.Replace(" ", "_");
-            if (!ImGui.BeginTabBar(stableId))
+            if (!Api.BeginTabBar(stableId))
                 return;
 
             try
@@ -121,7 +122,7 @@ namespace RepairMe
                 foreach (var tab in tabs)
                 {
                     var tabLabel = tab.Name.Replace(" ", "_");
-                    if (!ImGui.BeginTabItem(tabLabel))
+                    if (!Api.BeginTabItem(tabLabel))
                         continue;
 
                     try
@@ -130,13 +131,13 @@ namespace RepairMe
                     }
                     finally
                     {
-                        ImGui.EndTabItem();
+                        Api.EndTabItem();
                     }
                 }
             }
             finally
             {
-                ImGui.EndTabBar();
+                Api.EndTabBar();
             }
         }
 
@@ -829,6 +830,7 @@ namespace RepairMe
         public string TableKey = null!;
         public WindowItem[] Items = null!;
         public int Columns = 2;
+        internal IImGuiApi Api = DalamudImGuiApi.Instance;
 
         public ColorTableItem(string tableKey, int columns, WindowItem[] items)
         {
@@ -839,20 +841,20 @@ namespace RepairMe
 
         public override void Draw()
         {
-            if (!ImGui.BeginTable(TableKey + "##colortable", Columns))
+            if (!Api.BeginTable(TableKey + "##colortable", Columns))
                 return;
 
             try
             {
                 foreach (var item in Items)
                 {
-                    ImGui.TableNextColumn();
+                    Api.TableNextColumn();
                     item.Draw();
                 }
             }
             finally
             {
-                ImGui.EndTable();
+                Api.EndTable();
             }
         }
     }

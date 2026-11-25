@@ -58,6 +58,7 @@ namespace RepairMe
         private readonly Func<float> _borderSizeProvider;
         private readonly Func<Vector4> _borderColorProvider;
         private readonly Func<BarState> _stateProvider;
+        private readonly IImGuiApi _api;
 
         public BarOverlayItem(IOverlayHost host,
             Func<bool> shouldRender,
@@ -69,8 +70,10 @@ namespace RepairMe
             Func<float> roundingProvider,
             Func<float> borderSizeProvider,
             Func<Vector4> borderColorProvider,
-            Func<BarState> stateProvider)
+            Func<BarState> stateProvider,
+            IImGuiApi? api = null)
         {
+            _api = api ?? DalamudImGuiApi.Instance;
             _host = host;
             _shouldRender = shouldRender;
             _positionProvider = positionProvider;
@@ -94,8 +97,8 @@ namespace RepairMe
             _host.PushWindowEditingStyle();
             try
             {
-                ImGui.SetNextWindowSize(size + ImGui.GetStyle().WindowPadding * 2);
-                if (ImGui.Begin(_windowName, windowFlags))
+                _api.SetNextWindowSize(size + _api.WindowPadding * 2);
+                if (_api.Begin(_windowName, windowFlags))
                 {
                     _host.MigratePositions(ref position);
                     _host.CheckDrag(ref position);
@@ -115,7 +118,7 @@ namespace RepairMe
             }
             finally
             {
-                ImGui.End();
+                _api.End();
                 _host.PopWindowEditingStyle();
             }
         }
@@ -134,6 +137,7 @@ namespace RepairMe
         private readonly bool _useMinimumWindowSize;
         private readonly Func<float?> _scaleProvider;
         private readonly Func<Action?> _clickActionProvider;
+        private readonly IImGuiApi _api;
 
         public TextOverlayItem(IOverlayHost host,
             Func<bool> shouldRender,
@@ -145,8 +149,10 @@ namespace RepairMe
             Func<Vector4> backgroundProvider,
             bool useMinimumWindowSize,
             Func<float?> scaleProvider,
-            Func<Action?> clickActionProvider)
+            Func<Action?> clickActionProvider,
+            IImGuiApi? api = null)
         {
+            _api = api ?? DalamudImGuiApi.Instance;
             _host = host;
             _shouldRender = shouldRender;
             _textProvider = textProvider;
@@ -169,7 +175,7 @@ namespace RepairMe
             _host.PushWindowEditingStyle(_useMinimumWindowSize);
             try
             {
-                if (ImGui.Begin(_windowName, windowFlags))
+                if (_api.Begin(_windowName, windowFlags))
                 {
                     _host.MigratePositions(ref position);
                     _host.DrawTextOverlay(
@@ -184,7 +190,7 @@ namespace RepairMe
             }
             finally
             {
-                ImGui.End();
+                _api.End();
                 _host.PopWindowEditingStyle(_useMinimumWindowSize);
             }
         }
